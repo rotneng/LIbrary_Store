@@ -6,6 +6,8 @@ import Signup from "./pages/Signup";
 import AddBook from "./pages/AddBook";
 import EditBook from "./pages/EditBook";
 import AdminRoute from "./components/AdminRoute";
+import BookDetails from "./pages/BookDetails";
+
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/book/:id" element={<BookDetails />} />
 
         <Route element={<AdminRoute />}>
           <Route path="/add-book" element={<AddBook />} />

@@ -106,14 +106,25 @@ const Home = () => {
         <div style={styles.grid}>
           {filteredBooks.map((book) => (
             <div key={book._id} style={styles.card}>
-              <img
-                src={book.coverImage || "https://via.placeholder.com/250x150"}
-                alt={book.title}
-                style={styles.image}
-              />
+              <Link
+                to={`/book/${book._id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <img
+                  src={book.coverImage || "https://via.placeholder.com/250x150"}
+                  alt={book.title}
+                  style={styles.image}
+                />
+              </Link>
 
               <div style={styles.cardContent}>
-                <h3 style={styles.bookTitle}>{book.title}</h3>
+                <Link
+                  to={`/book/${book._id}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <h3 style={styles.bookTitle}>{book.title}</h3>
+                </Link>
+
                 <p style={styles.author}>by {book.author}</p>
 
                 <div style={styles.actionRow}>
@@ -201,10 +212,20 @@ const styles = {
     justifyContent: "space-between",
   },
 
-  image: { width: "100%", height: "200px", objectFit: "cover" },
+  image: {
+    width: "100%",
+    height: "200px",
+    objectFit: "cover",
+    cursor: "pointer",
+  }, // Added cursor pointer
   cardContent: { padding: "20px" },
 
-  bookTitle: { margin: "0 0 5px 0", fontSize: "1.25rem", color: "#2c3e50" },
+  bookTitle: {
+    margin: "0 0 5px 0",
+    fontSize: "1.25rem",
+    color: "#2c3e50",
+    cursor: "pointer",
+  }, // Added cursor pointer
   author: { color: "#7f8c8d", margin: "0 0 15px 0", fontSize: "0.9rem" },
 
   actionRow: {
