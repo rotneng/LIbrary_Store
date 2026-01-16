@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -8,6 +9,7 @@ const BookDetails = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const { addToCart } = useCart();
   const role = localStorage.getItem("role");
 
   useEffect(() => {
@@ -38,18 +40,10 @@ const BookDetails = () => {
     }
   };
 
-  const handleBuy = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login to buy!");
-      navigate("/login");
-      return;
-    }
-    alert("Proceeding to payment...");
-  };
-
   if (loading) return <div style={styles.center}>Loading details...</div>;
   if (!book) return <div style={styles.center}>Book not found</div>;
+
+  const isOutOfStock = book.stock <= 0;
 
   return (
     <div style={styles.container}>
@@ -80,8 +74,16 @@ const BookDetails = () => {
             <p>
               <strong>Category:</strong> {book.category}
             </p>
-            <p>
-              <strong>Stock:</strong> {book.stock} copies
+
+            <p
+              style={{
+                marginTop: "10px",
+                color: isOutOfStock ? "#e74c3c" : "#27ae60",
+                fontWeight: "bold",
+              }}
+            >
+              <strong>Availability: </strong>
+              {isOutOfStock ? "Sold Out" : `${book.stock} copies in stock`}
             </p>
           </div>
 
@@ -98,8 +100,12 @@ const BookDetails = () => {
                 </button>
               </div>
             ) : (
-              <button onClick={handleBuy} style={styles.buyBtn}>
-                Buy Now
+              <button
+                onClick={() => addToCart(book)}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? styles.disabledBtn : styles.buyBtn}
+              >
+                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </button>
             )}
           </div>
@@ -115,7 +121,7 @@ const styles = {
   backBtn: {
     background: "none",
     border: "none",
-    fontSize: "1rem",
+    fontSize: "1.2rem",
     cursor: "pointer",
     marginBottom: "20px",
     color: "#555",
@@ -154,6 +160,18 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    transition: "background 0.3s",
+  },
+
+  disabledBtn: {
+    width: "100%",
+    padding: "15px",
+    fontSize: "1.2rem",
+    backgroundColor: "#bdc3c7",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "not-allowed",
   },
 
   adminButtons: { display: "flex", gap: "15px" },
@@ -176,14 +194,6 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
-  },
-  backBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "1.5rem",
-    cursor: "pointer",
-    marginBottom: "20px",
-    color: "#555",
   },
 };
 

@@ -16,7 +16,7 @@ const Home = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await axios.get("/api/books");
+        const res = await axios.get("http://localhost:5000/api/books");
         setBooks(res.data);
       } catch (err) {
         console.error(err);
@@ -42,7 +42,7 @@ const Home = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/books/${id}`, {
+      await axios.delete(`http://localhost:5000/api/books/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBooks((prev) => prev.filter((book) => book._id !== id));
@@ -76,57 +76,82 @@ const Home = () => {
         </div>
       ) : (
         <div style={styles.grid}>
-          {filteredBooks.map((book) => (
-            <div key={book._id} style={styles.card}>
-              <Link
-                to={`/book/${book._id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <img
-                  src={book.coverImage || "https://via.placeholder.com/250x150"}
-                  alt={book.title}
-                  style={styles.image}
-                />
-              </Link>
+          {filteredBooks.map((book) => {
+            const isOutOfStock = book.stock <= 0;
 
-              <div style={styles.cardContent}>
+            return (
+              <div key={book._id} style={styles.card}>
                 <Link
                   to={`/book/${book._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <h3 style={styles.bookTitle}>{book.title}</h3>
+                  <img
+                    src={
+                      book.coverImage || "https://via.placeholder.com/250x150"
+                    }
+                    alt={book.title}
+                    style={styles.image}
+                  />
                 </Link>
 
-                <p style={styles.author}>by {book.author}</p>
-
-                <div style={styles.actionRow}>
-                  <span style={styles.price}>
-                    ₦{book.price.toLocaleString()}
-                  </span>
-                  <button
-                    onClick={() => addToCart(book)}
-                    style={styles.addToCartBtn}
+                <div style={styles.cardContent}>
+                  <Link
+                    to={`/book/${book._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
-                    Add to Cart
-                  </button>
-                </div>
+                    <h3 style={styles.bookTitle}>{book.title}</h3>
+                  </Link>
 
-                {role === "admin" && (
-                  <div style={styles.adminRow}>
-                    <Link to={`/edit-book/${book._id}`} style={{ flex: 1 }}>
-                      <button style={styles.editBtn}>Edit</button>
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(book._id)}
-                      style={styles.deleteBtn}
-                    >
-                      Delete
-                    </button>
+                  <p style={styles.author}>by {book.author}</p>
+
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      color: isOutOfStock ? "#e74c3c" : "#27ae60",
+                      marginBottom: "10px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {isOutOfStock ? "Sold Out" : `${book.stock} left in stock`}
+                  </p>
+
+                  <div style={styles.actionRow}>
+                    <span style={styles.price}>
+                      ₦{book.price.toLocaleString()}
+                    </span>
+
+                    {role !== "admin" && (
+                      <button
+                        onClick={() => addToCart(book)}
+                        disabled={isOutOfStock}
+                        style={
+                          isOutOfStock
+                            ? styles.disabledBtn
+                            : styles.addToCartBtn
+                        }
+                      >
+                        {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                      </button>
+                    )}
                   </div>
-                )}
+
+                  {role === "admin" && (
+                    <div style={styles.adminRow}>
+                      <Link to={`/edit-book/${book._id}`} style={{ flex: 1 }}>
+                        <button style={styles.editBtn}>Edit</button>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(book._id)}
+                        style={styles.deleteBtn}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -188,7 +213,7 @@ const styles = {
     color: "#2c3e50",
     cursor: "pointer",
   },
-  author: { color: "#7f8c8d", margin: "0 0 15px 0", fontSize: "0.9rem" },
+  author: { color: "#7f8c8d", margin: "0 0 10px 0", fontSize: "0.9rem" },
   actionRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -206,6 +231,16 @@ const styles = {
     cursor: "pointer",
     fontWeight: "600",
     transition: "background 0.3s",
+  },
+
+  disabledBtn: {
+    backgroundColor: "#bdc3c7",
+    color: "white",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "not-allowed",
+    fontWeight: "600",
   },
 
   editBtn: {

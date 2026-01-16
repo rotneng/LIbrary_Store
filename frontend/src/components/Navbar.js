@@ -63,23 +63,27 @@ const Navbar = () => {
           Home
         </Link>
 
-        <Link
-          to="/cart"
-          style={isMobile ? styles.mobileLink : styles.cartLink}
-          onClick={() => setMenuOpen(false)}
-        >
-          🛒 Cart ({cart.length})
-        </Link>
+        {role !== "admin" && (
+          <Link
+            to="/cart"
+            style={isMobile ? styles.mobileLink : styles.cartLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            🛒 Cart ({cart.length})
+          </Link>
+        )}
 
         {isLoggedIn ? (
           <>
-            <Link
-              to="/my-orders"
-              style={isMobile ? styles.mobileLink : styles.link}
-              onClick={() => setMenuOpen(false)}
-            >
-              My Orders
-            </Link>
+            {role !== "admin" && (
+              <Link
+                to="/my-orders"
+                style={isMobile ? styles.mobileLink : styles.link}
+                onClick={() => setMenuOpen(false)}
+              >
+                My Orders
+              </Link>
+            )}
 
             {role === "admin" && (
               <>

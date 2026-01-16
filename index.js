@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const dns = require("dns");
+dns.setDefaultResultOrder("ipv4first");
 
 const bookRoutes = require("./Route/bookRoutes");
 const userRoutes = require("./Route/userRoutes");

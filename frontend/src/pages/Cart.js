@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
-  const { cart, removeFromCart, totalPrice, clearCart } = useCart();
+  const { cart, removeFromCart, totalPrice } = useCart();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -17,25 +17,57 @@ const Cart = () => {
     }
 
     setLoading(true);
-    try {
-      const bookTitles = cart.map((item) => item.title).join(", ");
 
-      const res = await axios.post(
-        "http://localhost:5000/api/payment/initialize",
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      const userEmail = localStorage.getItem("userEmail") || "user@example.com";
+      const tempRef = `TEMP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+      const orderItems = cart.map((item) => ({
+        product: item._id,
+        title: item.title,
+        price: item.price,
+        qty: item.qty || 1,
+      }));
+
+      const orderResponse = await axios.post(
+        "http://localhost:5000/api/orders",
         {
-          email: "user@example.com",
+          orderItems: orderItems,
+          totalPrice: totalPrice,
           amount: totalPrice,
-          bookTitle: `Bulk Order: ${bookTitles}`,
+          email: userEmail,
+          reference: tempRef,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        config
       );
 
-      window.location.href = res.data.authorization_url;
+      const createdOrderId = orderResponse.data._id;
+
+      const bookTitles = cart.map((item) => item.title).join(", ");
+
+      const paymentRes = await axios.post(
+        "http://localhost:5000/api/payment/initialize",
+        {
+          email: userEmail,
+          amount: totalPrice,
+          orderId: createdOrderId,
+          bookTitle: `Bulk Order: ${bookTitles}`,
+        },
+        config
+      );
+
+      window.location.href = paymentRes.data.authorization_url;
     } catch (err) {
-      console.error(err);
-      alert("Checkout failed");
+      console.error("Checkout Error:", err);
+      const errorMsg =
+        err.response && err.response.data.message
+          ? err.response.data.message
+          : "Checkout failed. Please try again.";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }

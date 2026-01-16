@@ -1,14 +1,15 @@
 const axios = require("axios");
 const nodemailer = require("nodemailer");
 const Order = require("../Models/Order");
+const Book = require("../Models/Book");
 
 const initializePayment = async (req, res) => {
-  const { email, amount, bookTitle } = req.body;
+  const { email, amount, orderId } = req.body;
 
-  if (!email || !amount || !bookTitle) {
+  if (!email || !amount || !orderId) {
     return res
       .status(400)
-      .json({ error: "Missing email, amount, or book title" });
+      .json({ error: "Missing email, amount, or order ID" });
   }
 
   try {
@@ -17,8 +18,10 @@ const initializePayment = async (req, res) => {
       {
         email,
         amount: amount * 100,
-        metadata: { bookTitle },
         callback_url: "http://localhost:3000/payment-success",
+        metadata: {
+          order_id: orderId,
+        },
       },
       {
         headers: {
@@ -28,9 +31,13 @@ const initializePayment = async (req, res) => {
       }
     );
 
+    const paystackRef = response.data.data.reference;
+
+    await Order.findByIdAndUpdate(orderId, { reference: paystackRef });
+
     res.json(response.data.data);
   } catch (error) {
-    console.error(error);
+    console.error("Paystack Init Error:", error);
     res.status(500).json({ error: "Payment initialization failed" });
   }
 };
@@ -39,15 +46,6 @@ const verifyPayment = async (req, res) => {
   const { reference } = req.body;
 
   try {
-    const existingOrder = await Order.findOne({ reference });
-    if (existingOrder) {
-      return res.status(200).json({
-        status: "success",
-        message: "Order already saved",
-        order: existingOrder,
-      });
-    }
-
     const response = await axios.get(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
@@ -60,14 +58,28 @@ const verifyPayment = async (req, res) => {
     const data = response.data.data;
 
     if (data.status === "success") {
-      const newOrder = await Order.create({
-        user: req.user.id,
-        email: data.customer.email,
-        bookTitle: data.metadata ? data.metadata.bookTitle : "Book Purchase",
-        amount: data.amount / 100,
-        reference: data.reference,
-        status: "Paid",
-      });
+      const order = await Order.findOne({ reference });
+
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      if (order.status === "Paid") {
+        return res.status(200).json({
+          status: "success",
+          message: "Order already processed",
+          order,
+        });
+      }
+
+      order.status = "Paid";
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      await order.save();
+
+      for (const item of order.orderItems) {
+        await Book.findByIdAndUpdate(item.product, {
+          $inc: { stock: -item.qty },
+        });
+      }
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -75,18 +87,19 @@ const verifyPayment = async (req, res) => {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS,
         },
+        family: 4,
       });
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: data.customer.email,
+        to: order.email,
         subject: "Bookstore Receipt",
-        text: `Payment Successful!\n\nReference: ${data.reference}\nBook: ${newOrder.bookTitle}\nAmount: ₦${newOrder.amount}\n\nThank you for your patronage!`,
+        text: `Payment Successful!\n\nReference: ${order.reference}\nAmount: ₦${order.amount}\n\nYour books have been reserved. Thank you for your patronage!`,
       };
 
       await transporter.sendMail(mailOptions);
 
-      res.json({ status: "success", order: newOrder });
+      res.json({ status: "success", order });
     } else {
       res
         .status(400)
