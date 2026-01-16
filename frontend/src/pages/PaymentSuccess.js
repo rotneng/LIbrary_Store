@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useCart } from "../context/CartContext";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const reference = searchParams.get("reference");
   const [status, setStatus] = useState("Verifying payment...");
+
+  const { clearCart } = useCart();
 
   useEffect(() => {
     const verifyTransaction = async () => {
@@ -17,6 +20,7 @@ const PaymentSuccess = () => {
 
       try {
         const token = localStorage.getItem("token");
+
         await axios.post(
           "/api/payment/verify",
           { reference },
@@ -24,6 +28,7 @@ const PaymentSuccess = () => {
         );
 
         setStatus("Payment Successful! Order Saved.");
+        clearCart();
 
         setTimeout(() => {
           navigate("/");
@@ -35,7 +40,7 @@ const PaymentSuccess = () => {
     };
 
     verifyTransaction();
-  }, [reference, navigate]);
+  }, [reference, navigate, clearCart]);
 
   return (
     <div style={{ textAlign: "center", marginTop: "100px" }}>

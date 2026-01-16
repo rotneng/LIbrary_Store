@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { cart } = useCart();
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -60,6 +63,14 @@ const Navbar = () => {
           Home
         </Link>
 
+        <Link
+          to="/cart"
+          style={isMobile ? styles.mobileLink : styles.cartLink}
+          onClick={() => setMenuOpen(false)}
+        >
+          🛒 Cart ({cart.length})
+        </Link>
+
         {isLoggedIn ? (
           <>
             <Link
@@ -85,7 +96,7 @@ const Navbar = () => {
                   style={isMobile ? styles.mobileLink : styles.adminLink}
                   onClick={() => setMenuOpen(false)}
                 >
-                  View All Orders
+                  View Orders
                 </Link>
               </>
             )}
@@ -173,6 +184,18 @@ const styles = {
     fontSize: "1rem",
     fontWeight: "500",
     transition: "color 0.3s",
+  },
+
+  cartLink: {
+    color: "#fff",
+    textDecoration: "none",
+    fontSize: "1rem",
+    fontWeight: "bold",
+    border: "1px solid #7f8c8d",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    transition: "background 0.3s",
   },
 
   addButton: {

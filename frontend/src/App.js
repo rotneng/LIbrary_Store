@@ -11,25 +11,33 @@ import AdminOrders from "./pages/AdminOrders";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import MyOrders from "./pages/MyOrders";
 
+import { CartProvider } from "./context/CartContext";
+import Cart from "./pages/Cart";
+
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/book/:id" element={<BookDetails />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/my-orders" element={<MyOrders />} />
+    <CartProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/book/:id" element={<BookDetails />} />
 
-        <Route element={<AdminRoute />}>
-          <Route path="/add-book" element={<AddBook />} />
-          <Route path="/edit-book/:id" element={<EditBook />} />
-          <Route path="/admin-orders" element={<AdminOrders />} />
-        </Route>
-      </Routes>
-    </Router>
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+
+          <Route path="/cart" element={<Cart />} />
+
+          <Route element={<AdminRoute />}>
+            <Route path="/add-book" element={<AddBook />} />
+            <Route path="/edit-book/:id" element={<EditBook />} />
+            <Route path="/admin-orders" element={<AdminOrders />} />
+          </Route>
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 

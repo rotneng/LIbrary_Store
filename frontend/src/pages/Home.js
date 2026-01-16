@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 const Home = () => {
-  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { addToCart } = useCart();
 
   const role = localStorage.getItem("role");
 
@@ -52,34 +53,6 @@ const Home = () => {
     }
   };
 
-  const handleBuy = async (book) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please Login to buy a book!");
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-      const userRes = await axios.get("/api/auth/me", authHeader);
-      const paymentRes = await axios.post(
-        "/api/payment/initialize",
-        {
-          email: userRes.data.email,
-          amount: book.price,
-          bookTitle: book.title,
-        },
-        authHeader
-      );
-
-      window.location.href = paymentRes.data.authorization_url;
-    } catch (err) {
-      console.error(err);
-      alert("Payment initialization failed. Check console.");
-    }
-  };
-
   if (loading) return <div style={styles.centerMessage}>Loading Books...</div>;
   if (error)
     return <div style={{ ...styles.centerMessage, color: "red" }}>{error}</div>;
@@ -88,7 +61,6 @@ const Home = () => {
     <div style={styles.container}>
       <div style={styles.headerRow}>
         <h1 style={styles.header}>Our Collection</h1>
-
         <input
           type="text"
           placeholder="Search by title or author..."
@@ -131,8 +103,11 @@ const Home = () => {
                   <span style={styles.price}>
                     ₦{book.price.toLocaleString()}
                   </span>
-                  <button onClick={() => handleBuy(book)} style={styles.buyBtn}>
-                    Buy Now
+                  <button
+                    onClick={() => addToCart(book)}
+                    style={styles.addToCartBtn}
+                  >
+                    Add to Cart
                   </button>
                 </div>
 
@@ -160,7 +135,6 @@ const Home = () => {
 
 const styles = {
   container: { padding: "40px", maxWidth: "1200px", margin: "0 auto" },
-
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -169,14 +143,7 @@ const styles = {
     flexWrap: "wrap",
     gap: "20px",
   },
-
-  header: {
-    margin: 0,
-    fontSize: "2.5rem",
-    color: "#333",
-    fontWeight: "bold",
-  },
-
+  header: { margin: 0, fontSize: "2.5rem", color: "#333", fontWeight: "bold" },
   searchBar: {
     padding: "12px 20px",
     width: "300px",
@@ -187,20 +154,17 @@ const styles = {
     boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
     transition: "box-shadow 0.3s",
   },
-
   centerMessage: {
     textAlign: "center",
     marginTop: "50px",
     fontSize: "1.5rem",
     color: "#777",
   },
-
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "30px",
   },
-
   card: {
     border: "1px solid #eee",
     borderRadius: "12px",
@@ -211,23 +175,20 @@ const styles = {
     flexDirection: "column",
     justifyContent: "space-between",
   },
-
   image: {
     width: "100%",
     height: "200px",
     objectFit: "cover",
     cursor: "pointer",
-  }, // Added cursor pointer
+  },
   cardContent: { padding: "20px" },
-
   bookTitle: {
     margin: "0 0 5px 0",
     fontSize: "1.25rem",
     color: "#2c3e50",
     cursor: "pointer",
-  }, // Added cursor pointer
+  },
   author: { color: "#7f8c8d", margin: "0 0 15px 0", fontSize: "0.9rem" },
-
   actionRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -236,18 +197,20 @@ const styles = {
   },
   price: { fontSize: "1.2rem", fontWeight: "bold", color: "#27ae60" },
 
-  buyBtn: {
-    backgroundColor: "#34495e",
+  addToCartBtn: {
+    backgroundColor: "#f39c12",
     color: "white",
     border: "none",
     padding: "8px 16px",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "600",
+    transition: "background 0.3s",
   },
+
   editBtn: {
     width: "100%",
-    backgroundColor: "#f39c12",
+    backgroundColor: "#3498db",
     color: "white",
     border: "none",
     padding: "8px",
@@ -265,7 +228,6 @@ const styles = {
     cursor: "pointer",
     fontWeight: "600",
   },
-
   adminRow: {
     display: "flex",
     gap: "10px",
