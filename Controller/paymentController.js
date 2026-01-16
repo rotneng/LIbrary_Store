@@ -5,6 +5,12 @@ const Order = require("../Models/Order");
 const initializePayment = async (req, res) => {
   const { email, amount, bookTitle } = req.body;
 
+  if (!email || !amount || !bookTitle) {
+    return res
+      .status(400)
+      .json({ error: "Missing email, amount, or book title" });
+  }
+
   try {
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
@@ -12,6 +18,7 @@ const initializePayment = async (req, res) => {
         email,
         amount: amount * 100,
         metadata: { bookTitle },
+        callback_url: "http://localhost:3000/payment-success",
       },
       {
         headers: {
@@ -32,6 +39,15 @@ const verifyPayment = async (req, res) => {
   const { reference } = req.body;
 
   try {
+    const existingOrder = await Order.findOne({ reference });
+    if (existingOrder) {
+      return res.status(200).json({
+        status: "success",
+        message: "Order already saved",
+        order: existingOrder,
+      });
+    }
+
     const response = await axios.get(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
@@ -50,7 +66,9 @@ const verifyPayment = async (req, res) => {
         bookTitle: data.metadata ? data.metadata.bookTitle : "Book Purchase",
         amount: data.amount / 100,
         reference: data.reference,
+        status: "Paid",
       });
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -63,7 +81,7 @@ const verifyPayment = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: data.customer.email,
         subject: "Bookstore Receipt",
-        text: `Payment Successful!\n\nReference: ${data.reference}\nBook: ${newOrder.bookTitle}\nAmount: ₦${newOrder.amount}\n\nThank you!`,
+        text: `Payment Successful!\n\nReference: ${data.reference}\nBook: ${newOrder.bookTitle}\nAmount: ₦${newOrder.amount}\n\nThank you for your patronage!`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -75,8 +93,8 @@ const verifyPayment = async (req, res) => {
         .json({ status: "failed", message: "Verification failed" });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error("Verification Error:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

@@ -62,14 +62,32 @@ const Navbar = () => {
 
         {isLoggedIn ? (
           <>
+            <Link
+              to="/my-orders"
+              style={isMobile ? styles.mobileLink : styles.link}
+              onClick={() => setMenuOpen(false)}
+            >
+              My Orders
+            </Link>
+
             {role === "admin" && (
-              <Link
-                to="/add-book"
-                style={isMobile ? styles.mobileLink : styles.addButton}
-                onClick={() => setMenuOpen(false)}
-              >
-                + Add Book
-              </Link>
+              <>
+                <Link
+                  to="/add-book"
+                  style={isMobile ? styles.mobileLink : styles.addButton}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  + Add Book
+                </Link>
+
+                <Link
+                  to="/admin-orders"
+                  style={isMobile ? styles.mobileLink : styles.adminLink}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  View All Orders
+                </Link>
+              </>
             )}
 
             <button
@@ -163,6 +181,16 @@ const styles = {
     textDecoration: "none",
     fontWeight: "bold",
     padding: "8px 15px",
+    borderRadius: "20px",
+    fontSize: "0.9rem",
+  },
+
+  adminLink: {
+    color: "#f39c12",
+    textDecoration: "none",
+    fontWeight: "bold",
+    padding: "7px 15px",
+    border: "1px solid #f39c12",
     borderRadius: "20px",
     fontSize: "0.9rem",
   },

@@ -7,7 +7,9 @@ import AddBook from "./pages/AddBook";
 import EditBook from "./pages/EditBook";
 import AdminRoute from "./components/AdminRoute";
 import BookDetails from "./pages/BookDetails";
-
+import AdminOrders from "./pages/AdminOrders";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
   return (
@@ -18,10 +20,13 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/book/:id" element={<BookDetails />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/my-orders" element={<MyOrders />} />
 
         <Route element={<AdminRoute />}>
           <Route path="/add-book" element={<AddBook />} />
           <Route path="/edit-book/:id" element={<EditBook />} />
+          <Route path="/admin-orders" element={<AdminOrders />} />
         </Route>
       </Routes>
     </Router>
