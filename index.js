@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://l-ibrary-store.vercel.app"],
+    origin: ["http://localhost:3000", "https://libstore-catalog.vercel.app/"],
     credentials: true,
   }),
 );
