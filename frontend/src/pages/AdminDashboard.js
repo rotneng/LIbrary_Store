@@ -6,10 +6,15 @@ const AdminDashboard = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/books"
+      : "https://book-store-1esd.onrender.com/api/books";
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/books");
+        const res = await axios.get(API_URL);
         setBooks(res.data);
         setLoading(false);
       } catch (err) {
@@ -18,7 +23,7 @@ const AdminDashboard = () => {
       }
     };
     fetchBooks();
-  }, []);
+  }, [API_URL]);
 
   if (loading) return <div style={styles.center}>Loading Dashboard...</div>;
 

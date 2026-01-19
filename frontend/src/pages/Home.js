@@ -10,10 +10,15 @@ const Home = () => {
 
   const role = localStorage.getItem("role");
 
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/books"
+      : "https://book-store-1esd.onrender.com/api/books";
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/books");
+        const res = await axios.get(API_BASE_URL);
         setBooks(res.data);
       } catch (err) {
         console.error(err);
@@ -23,7 +28,7 @@ const Home = () => {
       }
     };
     fetchBooks();
-  }, []);
+  }, [API_BASE_URL]);
 
   const filteredBooks = books.filter(
     (book) =>
@@ -39,7 +44,8 @@ const Home = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/books/${id}`, {
+      // Use dynamic URL
+      await axios.delete(`${API_BASE_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBooks((prev) => prev.filter((book) => book._id !== id));

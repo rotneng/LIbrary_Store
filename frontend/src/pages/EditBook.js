@@ -7,6 +7,11 @@ const EditBook = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/books"
+      : "https://book-store-1esd.onrender.com/api/books";
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -20,7 +25,7 @@ const EditBook = () => {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/books/${id}`);
+        const res = await axios.get(`${API_BASE_URL}/${id}`);
 
         const data = res.data;
         setFormData({
@@ -41,7 +46,7 @@ const EditBook = () => {
       }
     };
     fetchBook();
-  }, [id, navigate]);
+  }, [id, navigate, API_BASE_URL]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,7 +56,7 @@ const EditBook = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/books/${id}`, formData, {
+      await axios.put(`${API_BASE_URL}/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

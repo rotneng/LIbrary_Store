@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom";
 const AddBook = () => {
   const navigate = useNavigate();
 
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/books"
+      : "https://book-store-1esd.onrender.com/api/books";
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -23,7 +28,7 @@ const AddBook = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:5000/api/books", formData, {
+      await axios.post(API_URL, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

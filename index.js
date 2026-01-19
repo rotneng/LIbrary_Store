@@ -10,7 +10,13 @@ const userRoutes = require("./Route/userRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://l-ibrary-store.vercel.app"],
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 
 app.use("/api/books", bookRoutes);

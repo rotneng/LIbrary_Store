@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
 
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://book-store-1esd.onrender.com";
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,10 +26,9 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post("/api/auth/signin", formData);
+      const res = await axios.post(`${API_BASE_URL}/api/auth/signin`, formData);
 
       localStorage.setItem("token", res.data.token);
-
       localStorage.setItem("role", res.data.role);
 
       console.log("Login Success:", res.data);
