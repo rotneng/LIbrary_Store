@@ -24,10 +24,9 @@ const getBookById = async (req, res) => {
 };
 
 const createBook = async (req, res) => {
-  const { title, author, price, description, category, coverImage, stock } =
-    req.body;
+  const { title, author, description, category, image, stock } = req.body;
 
-  if (!title || !author || !price || !description) {
+  if (!title || !author || !description) {
     return res
       .status(400)
       .json({ message: "Please fill in all required fields" });
@@ -35,13 +34,13 @@ const createBook = async (req, res) => {
 
   try {
     const book = await Book.create({
+      user: req.user.id,
       title,
       author,
-      price,
       description,
       category,
-      coverImage,
-      stock,
+      image: image || "https://via.placeholder.com/150",
+      stock: stock || 0,
     });
 
     res.status(201).json(book);

@@ -10,18 +10,29 @@ const EditBook = () => {
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    price: "",
     category: "",
     description: "",
-    coverImage: "",
+    image: "",
     stock: "",
+    location: "",
   });
 
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await axios.get(`/api/books/${id}`);
-        setFormData(res.data);
+        const res = await axios.get(`http://localhost:5000/api/books/${id}`);
+
+        const data = res.data;
+        setFormData({
+          title: data.title,
+          author: data.author,
+          category: data.category,
+          description: data.description,
+          stock: data.stock,
+          image: data.image || data.coverImage || "",
+          location: data.location || "",
+        });
+
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -40,15 +51,15 @@ const EditBook = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`/api/books/${id}`, formData, {
+      await axios.put(`http://localhost:5000/api/books/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       alert("Book Updated Successfully!");
-      navigate("/");
+      navigate(`/book/${id}`);
     } catch (err) {
       console.error(err);
-      alert("Failed to update book.");
+      alert("Failed to update book. Are you an admin?");
     }
   };
 
@@ -56,7 +67,7 @@ const EditBook = () => {
 
   return (
     <div style={{ maxWidth: "500px", margin: "50px auto" }}>
-      <h2 style={{ textAlign: "center" }}>Edit Book</h2>
+      <h2 style={{ textAlign: "center" }}>Edit Book Details</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "15px" }}
@@ -67,7 +78,7 @@ const EditBook = () => {
           value={formData.title}
           onChange={handleChange}
           required
-          style={{ padding: "10px" }}
+          style={styles.input}
         />
 
         <label>Author</label>
@@ -76,17 +87,7 @@ const EditBook = () => {
           value={formData.author}
           onChange={handleChange}
           required
-          style={{ padding: "10px" }}
-        />
-
-        <label>Price</label>
-        <input
-          name="price"
-          type="number"
-          value={formData.price}
-          onChange={handleChange}
-          required
-          style={{ padding: "10px" }}
+          style={styles.input}
         />
 
         <label>Category</label>
@@ -94,7 +95,26 @@ const EditBook = () => {
           name="category"
           value={formData.category}
           onChange={handleChange}
-          style={{ padding: "10px" }}
+          style={styles.input}
+        />
+
+        <label>Shelf Location (Optional)</label>
+        <input
+          name="location"
+          placeholder="e.g. Aisle 5, Shelf B"
+          value={formData.location}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <label>Stock Quantity</label>
+        <input
+          name="stock"
+          type="number"
+          value={formData.stock}
+          onChange={handleChange}
+          required
+          style={styles.input}
         />
 
         <label>Description</label>
@@ -103,15 +123,16 @@ const EditBook = () => {
           value={formData.description}
           onChange={handleChange}
           required
-          style={{ padding: "10px", height: "100px" }}
+          style={{ ...styles.input, height: "100px" }}
         />
 
-        <label>Cover Image URL</label>
+        <label>Image URL</label>
         <input
-          name="coverImage"
-          value={formData.coverImage}
+          name="image"
+          placeholder="https://..."
+          value={formData.image}
           onChange={handleChange}
-          style={{ padding: "10px" }}
+          style={styles.input}
         />
 
         <button
@@ -123,6 +144,7 @@ const EditBook = () => {
             border: "none",
             cursor: "pointer",
             fontSize: "16px",
+            borderRadius: "5px",
           }}
         >
           Save Changes
@@ -130,6 +152,15 @@ const EditBook = () => {
       </form>
     </div>
   );
+};
+
+const styles = {
+  input: {
+    padding: "10px",
+    fontSize: "1rem",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
 };
 
 export default EditBook;

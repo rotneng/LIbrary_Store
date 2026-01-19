@@ -7,8 +7,6 @@ dns.setDefaultResultOrder("ipv4first");
 
 const bookRoutes = require("./Route/bookRoutes");
 const userRoutes = require("./Route/userRoutes");
-const paymentRoutes = require('./Route/paymentRoutes');
-const orderRoute = require("./Route/orderRoute");
 
 const app = express();
 
@@ -17,8 +15,6 @@ app.use(express.json());
 
 app.use("/api/books", bookRoutes);
 app.use("/api/auth", userRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use("/api/orders", orderRoute);
 
 mongoose
   .connect(process.env.MONGO_URI)

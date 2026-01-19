@@ -8,11 +8,10 @@ const AddBook = () => {
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    price: "",
     category: "",
     description: "",
     stock: "",
-    coverImage: "",
+    image: "",
   });
 
   const handleChange = (e) => {
@@ -24,7 +23,7 @@ const AddBook = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("/api/books", formData, {
+      await axios.post("http://localhost:5000/api/books", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -57,14 +56,7 @@ const AddBook = () => {
           required
           style={{ padding: "10px" }}
         />
-        <input
-          name="price"
-          type="number"
-          placeholder="Price"
-          onChange={handleChange}
-          required
-          style={{ padding: "10px" }}
-        />
+
         <input
           name="category"
           placeholder="Category"
@@ -89,7 +81,7 @@ const AddBook = () => {
         />
 
         <input
-          name="coverImage"
+          name="image"
           placeholder="Image URL (e.g. https://...)"
           onChange={handleChange}
           style={{ padding: "10px" }}

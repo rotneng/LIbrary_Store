@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -9,13 +8,12 @@ const BookDetails = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useCart();
   const role = localStorage.getItem("role");
 
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await axios.get(`/api/books/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/books/${id}`);
         setBook(res.data);
         setLoading(false);
       } catch (err) {
@@ -30,13 +28,13 @@ const BookDetails = () => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/books/${id}`, {
+      await axios.delete(`http://localhost:5000/api/books/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Book deleted!");
       navigate("/");
     } catch (err) {
-      alert("Delete failed.");
+      alert("Delete failed. You might not be an admin.");
     }
   };
 
@@ -48,13 +46,17 @@ const BookDetails = () => {
   return (
     <div style={styles.container}>
       <button onClick={() => navigate(-1)} style={styles.backBtn}>
-        ← Back
+        ← Back to Catalog
       </button>
 
       <div style={styles.contentWrapper}>
         <div style={styles.imageSection}>
           <img
-            src={book.coverImage || "https://via.placeholder.com/400x600"}
+            src={
+              book.image ||
+              book.coverImage ||
+              "https://via.placeholder.com/400x600"
+            }
             alt={book.title}
             style={styles.image}
           />
@@ -64,8 +66,6 @@ const BookDetails = () => {
           <h1 style={styles.title}>{book.title}</h1>
           <h3 style={styles.author}>by {book.author}</h3>
 
-          <div style={styles.priceTag}>₦{book.price.toLocaleString()}</div>
-
           <p style={styles.description}>
             {book.description || "No description available for this book."}
           </p>
@@ -74,17 +74,21 @@ const BookDetails = () => {
             <p>
               <strong>Category:</strong> {book.category}
             </p>
-
-            <p
-              style={{
-                marginTop: "10px",
-                color: isOutOfStock ? "#e74c3c" : "#27ae60",
-                fontWeight: "bold",
-              }}
-            >
-              <strong>Availability: </strong>
-              {isOutOfStock ? "Sold Out" : `${book.stock} copies in stock`}
+            <p>
+              <strong>Shelf Location:</strong>{" "}
+              {book.location || "General Section"}
             </p>
+          </div>
+
+          <div style={styles.statusContainer}>
+            <span style={isOutOfStock ? styles.statusOut : styles.statusIn}>
+              {isOutOfStock
+                ? "🔴 Checked Out / Unavailable"
+                : "🟢 Available in Library"}
+            </span>
+            {!isOutOfStock && (
+              <span style={styles.stockCount}>({book.stock} copies)</span>
+            )}
           </div>
 
           <hr style={styles.divider} />
@@ -100,13 +104,9 @@ const BookDetails = () => {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => addToCart(book)}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? styles.disabledBtn : styles.buyBtn}
-              >
-                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
-              </button>
+              <div style={styles.note}>
+                Visit the library desk to borrow this book.
+              </div>
             )}
           </div>
         </div>
@@ -118,13 +118,15 @@ const BookDetails = () => {
 const styles = {
   container: { padding: "40px", maxWidth: "1000px", margin: "0 auto" },
   center: { textAlign: "center", marginTop: "50px", fontSize: "1.5rem" },
+
   backBtn: {
     background: "none",
     border: "none",
-    fontSize: "1.2rem",
+    fontSize: "1rem",
     cursor: "pointer",
     marginBottom: "20px",
-    color: "#555",
+    color: "#2980b9",
+    fontWeight: "bold",
   },
 
   contentWrapper: { display: "flex", gap: "50px", flexWrap: "wrap" },
@@ -134,45 +136,51 @@ const styles = {
     width: "100%",
     borderRadius: "10px",
     boxShadow: "0 5px 15px rgba(0,0,0,0.2)",
+    objectFit: "cover",
   },
 
   infoSection: { flex: "1.5", minWidth: "300px" },
-  title: { fontSize: "2.5rem", margin: "0 0 10px 0", color: "#333" },
-  author: { fontSize: "1.2rem", color: "#777", marginBottom: "20px" },
-  priceTag: {
-    fontSize: "2rem",
-    color: "#27ae60",
-    fontWeight: "bold",
+  title: { fontSize: "2.5rem", margin: "0 0 10px 0", color: "#2c3e50" },
+  author: { fontSize: "1.2rem", color: "#7f8c8d", marginBottom: "20px" },
+
+  description: {
+    lineHeight: "1.6",
+    color: "#34495e",
+    fontSize: "1.1rem",
     marginBottom: "20px",
   },
-  description: { lineHeight: "1.6", color: "#555", fontSize: "1.1rem" },
-  meta: { marginTop: "20px", color: "#888", fontSize: "0.9rem" },
+
+  meta: { marginTop: "20px", color: "#7f8c8d", fontSize: "0.95rem" },
+
+  statusContainer: {
+    marginTop: "20px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  statusIn: {
+    padding: "8px 15px",
+    backgroundColor: "#d4edda",
+    color: "#155724",
+    borderRadius: "20px",
+    fontWeight: "bold",
+    border: "1px solid #c3e6cb",
+  },
+  statusOut: {
+    padding: "8px 15px",
+    backgroundColor: "#f8d7da",
+    color: "#721c24",
+    borderRadius: "20px",
+    fontWeight: "bold",
+    border: "1px solid #f5c6cb",
+  },
+  stockCount: { color: "#7f8c8d" },
+
   divider: { margin: "30px 0", border: "none", borderTop: "1px solid #eee" },
 
   actionArea: { marginTop: "20px" },
 
-  buyBtn: {
-    width: "100%",
-    padding: "15px",
-    fontSize: "1.2rem",
-    backgroundColor: "#333",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    transition: "background 0.3s",
-  },
-
-  disabledBtn: {
-    width: "100%",
-    padding: "15px",
-    fontSize: "1.2rem",
-    backgroundColor: "#bdc3c7",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "not-allowed",
-  },
+  note: { fontStyle: "italic", color: "#7f8c8d" },
 
   adminButtons: { display: "flex", gap: "15px" },
   editBtn: {
@@ -184,6 +192,7 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    fontWeight: "bold",
   },
   deleteBtn: {
     flex: 1,
@@ -194,6 +203,7 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 };
 

@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 const Home = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const { addToCart } = useCart();
 
   const role = localStorage.getItem("role");
 
@@ -20,7 +17,7 @@ const Home = () => {
         setBooks(res.data);
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch books.");
+        setError("Failed to fetch books. Is the server running?");
       } finally {
         setLoading(false);
       }
@@ -31,7 +28,7 @@ const Home = () => {
   const filteredBooks = books.filter(
     (book) =>
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase())
+      book.author.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleDelete = async (id) => {
@@ -49,18 +46,19 @@ const Home = () => {
       alert("Book deleted successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to delete. Are you logged in?");
+      alert("Failed to delete. Are you logged in as Admin?");
     }
   };
 
-  if (loading) return <div style={styles.centerMessage}>Loading Books...</div>;
+  if (loading)
+    return <div style={styles.centerMessage}>Loading Library...</div>;
   if (error)
     return <div style={{ ...styles.centerMessage, color: "red" }}>{error}</div>;
 
   return (
     <div style={styles.container}>
       <div style={styles.headerRow}>
-        <h1 style={styles.header}>Our Collection</h1>
+        <h1 style={styles.header}>Library Catalog</h1>
         <input
           type="text"
           placeholder="Search by title or author..."
@@ -87,7 +85,9 @@ const Home = () => {
                 >
                   <img
                     src={
-                      book.coverImage || "https://via.placeholder.com/250x150"
+                      book.image ||
+                      book.coverImage ||
+                      "https://via.placeholder.com/250x150"
                     }
                     alt={book.title}
                     style={styles.image}
@@ -104,38 +104,18 @@ const Home = () => {
 
                   <p style={styles.author}>by {book.author}</p>
 
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      color: isOutOfStock ? "#e74c3c" : "#27ae60",
-                      marginBottom: "10px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {isOutOfStock ? "Sold Out" : `${book.stock} left in stock`}
-                  </p>
-
-                  <div style={styles.actionRow}>
-                    <span style={styles.price}>
-                      ₦{book.price.toLocaleString()}
+                  <div style={styles.statusRow}>
+                    <span
+                      style={isOutOfStock ? styles.statusOut : styles.statusIn}
+                    >
+                      {isOutOfStock ? "Unavailable" : "Available"}
                     </span>
-
-                    {role !== "admin" && (
-                      <button
-                        onClick={() => addToCart(book)}
-                        disabled={isOutOfStock}
-                        style={
-                          isOutOfStock
-                            ? styles.disabledBtn
-                            : styles.addToCartBtn
-                        }
-                      >
-                        {isOutOfStock ? "Out of Stock" : "Add to Cart"}
-                      </button>
+                    {!isOutOfStock && (
+                      <span style={styles.stockCount}>({book.stock})</span>
                     )}
                   </div>
 
-                  {role === "admin" && (
+                  {role === "admin" ? (
                     <div style={styles.adminRow}>
                       <Link to={`/edit-book/${book._id}`} style={{ flex: 1 }}>
                         <button style={styles.editBtn}>Edit</button>
@@ -147,6 +127,13 @@ const Home = () => {
                         Delete
                       </button>
                     </div>
+                  ) : (
+                    <Link
+                      to={`/book/${book._id}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <button style={styles.viewBtn}>View Details</button>
+                    </Link>
                   )}
                 </div>
               </div>
@@ -168,7 +155,12 @@ const styles = {
     flexWrap: "wrap",
     gap: "20px",
   },
-  header: { margin: 0, fontSize: "2.5rem", color: "#333", fontWeight: "bold" },
+  header: {
+    margin: 0,
+    fontSize: "2.5rem",
+    color: "#2c3e50",
+    fontWeight: "bold",
+  },
   searchBar: {
     padding: "12px 20px",
     width: "300px",
@@ -177,7 +169,6 @@ const styles = {
     fontSize: "1rem",
     outline: "none",
     boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
-    transition: "box-shadow 0.3s",
   },
   centerMessage: {
     textAlign: "center",
@@ -209,38 +200,50 @@ const styles = {
   cardContent: { padding: "20px" },
   bookTitle: {
     margin: "0 0 5px 0",
-    fontSize: "1.25rem",
+    fontSize: "1.2rem",
     color: "#2c3e50",
     cursor: "pointer",
+    fontWeight: "bold",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
-  author: { color: "#7f8c8d", margin: "0 0 10px 0", fontSize: "0.9rem" },
-  actionRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "10px",
-  },
-  price: { fontSize: "1.2rem", fontWeight: "bold", color: "#27ae60" },
+  author: { color: "#7f8c8d", margin: "0 0 15px 0", fontSize: "0.9rem" },
 
-  addToCartBtn: {
-    backgroundColor: "#f39c12",
+  statusRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "15px",
+  },
+  statusIn: {
+    fontSize: "0.8rem",
+    color: "#155724",
+    backgroundColor: "#d4edda",
+    padding: "4px 8px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+  },
+  statusOut: {
+    fontSize: "0.8rem",
+    color: "#721c24",
+    backgroundColor: "#f8d7da",
+    padding: "4px 8px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+  },
+  stockCount: { fontSize: "0.8rem", color: "#7f8c8d" },
+
+  viewBtn: {
+    width: "100%",
+    backgroundColor: "#34495e",
     color: "white",
     border: "none",
-    padding: "8px 16px",
+    padding: "10px",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "600",
     transition: "background 0.3s",
-  },
-
-  disabledBtn: {
-    backgroundColor: "#bdc3c7",
-    color: "white",
-    border: "none",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    cursor: "not-allowed",
-    fontWeight: "600",
   },
 
   editBtn: {
@@ -266,8 +269,8 @@ const styles = {
   adminRow: {
     display: "flex",
     gap: "10px",
-    marginTop: "15px",
-    paddingTop: "15px",
+    marginTop: "10px",
+    paddingTop: "10px",
     borderTop: "1px solid #f0f0f0",
   },
 };

@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { cart } = useCart();
-
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -16,11 +13,8 @@ const Navbar = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (!mobile) {
-        setMenuOpen(false);
-      }
+      if (!mobile) setMenuOpen(false);
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -35,9 +29,8 @@ const Navbar = () => {
     <nav style={styles.nav}>
       <div style={styles.brandContainer}>
         <Link to="/" style={styles.brand}>
-          📚Bookstore
+          📚 Library Catalog
         </Link>
-
         {isMobile && (
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -60,47 +53,27 @@ const Navbar = () => {
           style={isMobile ? styles.mobileLink : styles.link}
           onClick={() => setMenuOpen(false)}
         >
-          Home
+          Catalog
         </Link>
-
-        {role !== "admin" && (
-          <Link
-            to="/cart"
-            style={isMobile ? styles.mobileLink : styles.cartLink}
-            onClick={() => setMenuOpen(false)}
-          >
-            🛒 Cart ({cart.length})
-          </Link>
-        )}
 
         {isLoggedIn ? (
           <>
-            {role !== "admin" && (
-              <Link
-                to="/my-orders"
-                style={isMobile ? styles.mobileLink : styles.link}
-                onClick={() => setMenuOpen(false)}
-              >
-                My Orders
-              </Link>
-            )}
-
             {role === "admin" && (
               <>
+                <Link
+                  to="/admin-dashboard"
+                  style={isMobile ? styles.mobileLink : styles.link}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  📊 Dashboard
+                </Link>
+
                 <Link
                   to="/add-book"
                   style={isMobile ? styles.mobileLink : styles.addButton}
                   onClick={() => setMenuOpen(false)}
                 >
-                  + Add Book
-                </Link>
-
-                <Link
-                  to="/admin-orders"
-                  style={isMobile ? styles.mobileLink : styles.adminLink}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  View Orders
+                  ➕ Add Book
                 </Link>
               </>
             )}
@@ -149,24 +122,19 @@ const styles = {
     zIndex: 1000,
     flexWrap: "wrap",
   },
-
   brandContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    width: "auto",
     flex: 1,
   },
-
   brand: {
     color: "#ecf0f1",
     textDecoration: "none",
     fontSize: "1.5rem",
     fontWeight: "800",
-    letterSpacing: "1px",
     whiteSpace: "nowrap",
   },
-
   hamburger: {
     background: "none",
     border: "none",
@@ -175,13 +143,7 @@ const styles = {
     cursor: "pointer",
     marginLeft: "auto",
   },
-
-  menu: {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px",
-  },
-
+  menu: { display: "flex", alignItems: "center", gap: "20px" },
   link: {
     color: "#bdc3c7",
     textDecoration: "none",
@@ -189,19 +151,6 @@ const styles = {
     fontWeight: "500",
     transition: "color 0.3s",
   },
-
-  cartLink: {
-    color: "#fff",
-    textDecoration: "none",
-    fontSize: "1rem",
-    fontWeight: "bold",
-    border: "1px solid #7f8c8d",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    backgroundColor: "rgba(255,255,255,0.1)",
-    transition: "background 0.3s",
-  },
-
   addButton: {
     color: "#2c3e50",
     backgroundColor: "#f1c40f",
@@ -210,18 +159,8 @@ const styles = {
     padding: "8px 15px",
     borderRadius: "20px",
     fontSize: "0.9rem",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
   },
-
-  adminLink: {
-    color: "#f39c12",
-    textDecoration: "none",
-    fontWeight: "bold",
-    padding: "7px 15px",
-    border: "1px solid #f39c12",
-    borderRadius: "20px",
-    fontSize: "0.9rem",
-  },
-
   primaryBtn: {
     color: "#fff",
     backgroundColor: "#2980b9",
@@ -230,7 +169,6 @@ const styles = {
     borderRadius: "5px",
     fontWeight: "bold",
   },
-
   logoutBtn: {
     backgroundColor: "#e74c3c",
     color: "white",
@@ -241,7 +179,6 @@ const styles = {
     fontWeight: "bold",
     fontSize: "0.9rem",
   },
-
   mobileMenu: {
     flexDirection: "column",
     width: "100%",
@@ -251,11 +188,7 @@ const styles = {
     borderTop: "1px solid #34495e",
     paddingTop: "20px",
   },
-
-  hideMenu: {
-    display: "none",
-  },
-
+  hideMenu: { display: "none" },
   mobileLink: {
     color: "#bdc3c7",
     textDecoration: "none",
@@ -264,7 +197,6 @@ const styles = {
     width: "100%",
     padding: "10px 0",
   },
-
   mobilePrimaryBtn: {
     color: "#fff",
     backgroundColor: "#2980b9",
@@ -275,7 +207,6 @@ const styles = {
     width: "100%",
     textAlign: "center",
   },
-
   mobileLogoutBtn: {
     backgroundColor: "#e74c3c",
     color: "white",
