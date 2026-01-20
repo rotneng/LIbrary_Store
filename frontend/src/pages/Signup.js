@@ -40,59 +40,153 @@ const Signup = () => {
   };
 
   return (
-    <div
-      style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center" }}
-    >
-      <h2>Sign Up</h2>
+    <div style={styles.pageContainer}>
+      <div style={styles.card}>
+        <h2 style={styles.heading}>Create Account</h2>
+        <p style={styles.subHeading}>Join our library today</p>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <div style={styles.errorMessage}>{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", width: "100%" }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Full Name</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </div>
 
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", width: "100%" }}
-          />
-        </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </div>
 
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{ padding: "10px", width: "100%" }}
-          />
-        </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </div>
 
-        <button
-          type="submit"
-          style={{ padding: "10px 20px", cursor: "pointer" }}
-        >
-          Register
-        </button>
-      </form>
+          <button type="submit" style={styles.button}>
+            Register
+          </button>
+        </form>
+
+        <p style={styles.footerText}>
+          Already have an account?{" "}
+          <span
+            style={{ color: "#3498db", cursor: "pointer", fontWeight: "bold" }}
+            onClick={() => navigate("/login")}
+          >
+            Login here
+          </span>
+        </p>
+      </div>
     </div>
   );
+};
+
+const styles = {
+  pageContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "80vh",
+    padding: "20px",
+    backgroundColor: "#f5f7fa",
+  },
+  card: {
+    width: "100%",
+    maxWidth: "400px",
+    backgroundColor: "#fff",
+    padding: "30px",
+    borderRadius: "15px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+    textAlign: "center",
+  },
+  heading: {
+    margin: "0 0 10px 0",
+    color: "#2c3e50",
+    fontSize: "2rem",
+  },
+  subHeading: {
+    margin: "0 0 30px 0",
+    color: "#7f8c8d",
+    fontSize: "1rem",
+  },
+  errorMessage: {
+    backgroundColor: "#ffebee",
+    color: "#c0392b",
+    padding: "10px",
+    borderRadius: "8px",
+    marginBottom: "20px",
+    fontSize: "0.9rem",
+    border: "1px solid #ffcdd2",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
+  inputGroup: {
+    textAlign: "left",
+  },
+  label: {
+    display: "block",
+    marginBottom: "8px",
+    color: "#34495e",
+    fontWeight: "600",
+    fontSize: "0.9rem",
+  },
+  input: {
+    width: "100%",
+    padding: "12px 15px",
+    fontSize: "1rem",
+    borderRadius: "8px",
+    border: "1px solid #dfe6e9",
+    outline: "none",
+    transition: "border-color 0.3s",
+    boxSizing: "border-box",
+    backgroundColor: "#fdfdfd",
+  },
+  button: {
+    width: "100%",
+    padding: "14px",
+    backgroundColor: "#27ae60",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+    marginTop: "10px",
+  },
+  footerText: {
+    marginTop: "20px",
+    color: "#7f8c8d",
+    fontSize: "0.9rem",
+  },
 };
 
 export default Signup;
