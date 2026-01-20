@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 const Signup = () => {
   const navigate = useNavigate();
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
   const API_BASE_URL =
     window.location.hostname === "localhost"
       ? "http://localhost:5000"
@@ -16,8 +20,6 @@ const Signup = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -25,14 +27,17 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     try {
       const res = await axios.post(`${API_BASE_URL}/api/auth/signup`, formData);
-
       console.log("Signup Success:", res.data);
-      alert("Signup Successful! Please Login.");
 
-      navigate("/login");
+      setSuccess("Signup Successful! Redirecting to Login...");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Signup failed");
@@ -46,6 +51,7 @@ const Signup = () => {
         <p style={styles.subHeading}>Join our library today</p>
 
         {error && <div style={styles.errorMessage}>{error}</div>}
+        {success && <div style={styles.successMessage}>{success}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
@@ -76,15 +82,63 @@ const Signup = () => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Create a password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Create a password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                style={{ ...styles.input, paddingRight: "40px" }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#7f8c8d"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#7f8c8d"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <button type="submit" style={styles.button}>
@@ -143,6 +197,16 @@ const styles = {
     fontSize: "0.9rem",
     border: "1px solid #ffcdd2",
   },
+
+  successMessage: {
+    backgroundColor: "#e8f5e9",
+    color: "#27ae60",
+    padding: "10px",
+    borderRadius: "8px",
+    marginBottom: "20px",
+    fontSize: "0.9rem",
+    border: "1px solid #c8e6c9",
+  },
   form: {
     display: "flex",
     flexDirection: "column",
@@ -168,6 +232,17 @@ const styles = {
     transition: "border-color 0.3s",
     boxSizing: "border-box",
     backgroundColor: "#fdfdfd",
+  },
+  eyeButton: {
+    position: "absolute",
+    right: "10px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "5px",
   },
   button: {
     width: "100%",
