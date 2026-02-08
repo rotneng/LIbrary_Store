@@ -1,26 +1,24 @@
-A full-stack e-commerce application for browsing, purchasing, and managing books. 
-This project features user authentication, a shopping cart, an admin dashboard for inventory management, and secure payments via Paystack.
+LIBRARY CATALOG A full-stack Book Management Library application built using the MERN stack (MongoDB, Express.js, React.js, Node.js). This application allows users to view available books, while administrators can manage the inventory by adding, editing, and deleting books.
 
-User Features 
-Browse Books: View a catalog of books with details (title, author, price, description). 
-User Authentication: Secure Sign Up and Login (JWT-based). Shopping Cart: Add/remove items and view total price dynamically. 
-Secure Checkout: Integrated Paystack payment gateway for real-time transactions. Order History: Users can view their past orders and payment status. 
-Responsive Design: Works on desktop and mobile.
-Admin Features Dashboard: 
-Overview of total orders and sales. 
-Manage Books: Add, Edit, and Delete books from the inventory. 
-Manage Orders: View all customer orders and their payment status.
+✨ Features
 
-Tech Stack Frontend:
-React.js (Hooks, Context API for State Management)
-React Router (Navigation)
-Axios (API Requests)
-CSS3 / Custom Styles
+Authentication & Authorization:
+User Signup & Login with secure password hashing (bcrypt).
+JWT (JSON Web Token) based session management.
+Show/Hide Password toggle for better UX.
+Role-based access (Admin vs. Regular User).
+Book Management (CRUD):
+Create: Admins can add new books with details like title, author, category, stock, and cover image.
+Read: Browse the complete collection of books.
+Update: Edit book details (stock, location, descriptions).
+Delete: Remove books from the library.
+User Experience:
 
-Backend:
-Node.js & Express.js
-MongoDB & Mongoose (Database & Schema)
-JWT (JSON Web Tokens) for Authentication
-Bcryptjs (Password Hashing)
-Payment:
-Paystack API
+Responsive and clean UI.
+No Alerts: Native browser alerts have been replaced with modern, inline success/error status messages.
+Auto-redirects after successful actions (Login, Signup, Add Book).
+🛠️ Tech Stack
+
+Frontend React.js: Component-based UI. React Router DOM: For seamless page navigation. Axios: For making HTTP requests to the backend. CSS: Custom styling for a clean, card-based layout.
+
+Backend Node.js & Express.js: Server-side logic and RESTful API architecture. MongoDB & Mongoose: NoSQL database for storing user and book data. Bcrypt.js: For password encryption. JsonWebToken (JWT): For secure authentication. Cors: To handle Cross-Origin Resource Sharing.
